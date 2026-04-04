@@ -99,7 +99,7 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
     caeExpiration: response.CAEFchVto,
     invoiceNumber: nextNumber,
     invoiceType: invoiceLabel,
-    pointOfSale: salePoint,
+    pointOfSale: pointOfSale,
   };
 }
 
