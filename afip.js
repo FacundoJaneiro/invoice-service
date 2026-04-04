@@ -16,7 +16,6 @@ if (isProduction && !process.env.ACCESS_TOKEN) {
 
 const afip = new Afip(config);
 
-const DEFAULT_SALE_POINT = parseInt(process.env.SALE_POINT);
 
 // Mapeo fiscal_status → tipo de comprobante AFIP
 // CbteTipo: 1=Factura A, 6=Factura B
@@ -49,9 +48,7 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
   const { cbteTipo, invoiceLabel, docTipo, discriminaIva, condicionIvaReceptorId } =
     resolveInvoiceType(fiscalStatus);
 
-  const salePoint = pointOfSale ?? DEFAULT_SALE_POINT;
-
-  const lastNumber = await afip.ElectronicBilling.getLastVoucher(salePoint, cbteTipo);
+  const lastNumber = await afip.ElectronicBilling.getLastVoucher(pointOfSale, cbteTipo);
   const nextNumber = lastNumber + 1;
 
   const docNro = taxId
@@ -65,7 +62,7 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
 
   const data = {
     CantReg: 1,
-    PtoVta: salePoint,
+    PtoVta: pointOfSale,
     CbteTipo: cbteTipo,
     Concepto: concept,
     DocTipo: docTipo,
@@ -108,8 +105,7 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
 
 async function getInvoice(type, number, pointOfSale) {
   const cbteTipo = type === "A" ? 1 : 6;
-  const salePoint = pointOfSale ?? DEFAULT_SALE_POINT;
-  const voucher = await afip.ElectronicBilling.getVoucherInfo(number, salePoint, cbteTipo);
+  const voucher = await afip.ElectronicBilling.getVoucherInfo(number, pointOfSale, cbteTipo);
   return voucher;
 }
 
