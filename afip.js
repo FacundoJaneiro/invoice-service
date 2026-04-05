@@ -52,8 +52,18 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
   const nextNumber = lastNumber + 1;
 
   const cleanTaxId = taxId ? String(taxId).replace(/[-\s]/g, "") : null;
-  const effectiveDocTipo = cleanTaxId ? docTipo : 99;
-  const docNro = cleanTaxId ? parseInt(cleanTaxId) : 0;
+  let effectiveDocTipo = 99;
+  let docNro = 0;
+  if (cleanTaxId) {
+    if (cleanTaxId.length === 11) {
+      effectiveDocTipo = 80; // CUIT
+    } else if (cleanTaxId.length === 8) {
+      effectiveDocTipo = 96; // DNI
+    } else {
+      effectiveDocTipo = 99; // sin identificar
+    }
+    docNro = parseInt(cleanTaxId);
+  }
 
   // Factura A: descomponer total en neto + IVA (precio ya incluye IVA)
   // Factura B: total va directo en ImpTotConc, sin discriminar
