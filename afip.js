@@ -51,9 +51,9 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
   const lastNumber = await afip.ElectronicBilling.getLastVoucher(pointOfSale, cbteTipo);
   const nextNumber = lastNumber + 1;
 
-  const docNro = taxId
-    ? parseInt(String(taxId).replace(/[-\s]/g, ""))
-    : 0;
+  const cleanTaxId = taxId ? String(taxId).replace(/[-\s]/g, "") : null;
+  const effectiveDocTipo = cleanTaxId ? docTipo : 99;
+  const docNro = cleanTaxId ? parseInt(cleanTaxId) : 0;
 
   // Factura A: descomponer total en neto + IVA (precio ya incluye IVA)
   // Factura B: total va directo en ImpTotConc, sin discriminar
@@ -65,7 +65,7 @@ async function emitInvoice({ fiscalStatus, taxId, totalAmount, pointOfSale, conc
     PtoVta: pointOfSale,
     CbteTipo: cbteTipo,
     Concepto: concept,
-    DocTipo: docTipo,
+    DocTipo: effectiveDocTipo,
     DocNro: docNro,
     CbteDesde: nextNumber,
     CbteHasta: nextNumber,
